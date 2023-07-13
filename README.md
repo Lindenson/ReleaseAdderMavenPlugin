@@ -64,7 +64,7 @@ If the names of the branches are following some pattern to trace back the releas
         <artifactId>release-adder-maven-plugin</artifactId>
         <version>1.0</version>
         <configuration>
-          <regex>release-(\\d+\\.*)*</regex>
+          <regex>release-(\d+\.*)*</regex>
           <sufix>release-</sufix>
           <folder>release_adder</folder>
         </configuration>

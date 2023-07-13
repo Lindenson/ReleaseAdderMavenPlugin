@@ -50,7 +50,7 @@ public class FileExtractor {
             String fileName, String baseDirName, String techDirName,
             String releaseSuffix, String releaseRegex, Log logger
     ) {
-        this.base_dir = "/home/wol/IdeaProjects/BotChat/gtp-chatbot-ms";
+        this.base_dir = baseDirName;
         this.logger = logger;
         this.releaseSuffix = releaseSuffix;
         this.file_name = fileName;

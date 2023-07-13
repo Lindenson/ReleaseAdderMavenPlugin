@@ -57,7 +57,7 @@ public class AdderPlugin extends AbstractMojo
                 .fileName(METADATA_NAME)
                 .logger(getLog())
                 .releaseRegex(regex)
-                .releaseRegex(suffix)
+                .releaseSuffix(suffix)
                 .releaseDir(folder)
                 .build();
 
