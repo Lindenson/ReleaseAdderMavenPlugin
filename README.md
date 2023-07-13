@@ -65,7 +65,7 @@ If the names of the branches are following some pattern to trace back the releas
         <version>1.0</version>
         <configuration>
           <regex>release-(\d+\.*)*</regex>
-          <sufix>release-</sufix>
+          <suffix>release-</suffix>
           <folder>release_adder</folder>
         </configuration>
         <executions>
