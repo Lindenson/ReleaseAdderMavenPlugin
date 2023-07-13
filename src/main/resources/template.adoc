@@ -1,0 +1,8 @@
+*Release Adder Plugin Report*
+
+[cols="1,1,1,1"]
+|===
+
+|Property added |To Release |Property gone |From Release
+
+
