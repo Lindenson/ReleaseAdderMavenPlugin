@@ -118,8 +118,7 @@ public class FileExtractor {
         RevWalk rw = null;
         try {
             TreeMap<Integer, Ref> branches = GitUtils.expandBranchNamesAndReorderBranches(getBranches(git));
-            TreeMap<Integer, Ref> orderedBranches = GitUtils.dropBranchesLaterThenCurrentBranches(branches, currentBranchNumber(git));
-            System.out.println(orderedBranches);
+            TreeMap<Integer, Ref> orderedBranches = GitUtils.dropBranchesLaterThenCurrentBranches(branches, currentBranchNumber(git));        
 
             branchInfo = GitUtils.currentAndPreviousReleaseInfo(orderedBranches);
             Ref release_before = branchInfo.beforeRef();
