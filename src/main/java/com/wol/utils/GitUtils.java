@@ -1,7 +1,10 @@
 package com.wol.utils;
 
 import com.wol.file.dto.BranchInfo;
+import org.apache.maven.plugin.logging.Log;
 import org.eclipse.jgit.lib.Ref;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,10 +18,11 @@ public class GitUtils {
 
 
     public static String refNameToBranchName(String refName) {
+        if (refName == null) return null;
         return refName.replace(REFS_HEADS, "");
     }
 
-    public static BranchInfo currentAndPreviousReleaseInfo(TreeMap<Integer, Ref> branchNames)  {
+    public static BranchInfo currentAndPreviousReleaseInfo(@NotNull TreeMap<Integer, Ref> branchNames)  {
         Optional<Map.Entry<Integer, Ref>> le = Optional.ofNullable(branchNames.lastEntry());
         String last = le.map(it -> it.getValue().getName()).map(GitUtils::refNameToBranchName).orElse(null);
         Optional<SortedMap<Integer, Ref>> ble = le.map(it -> it.getKey()).map(it -> branchNames.subMap(0, it)).filter(it -> !it.isEmpty());
@@ -27,16 +31,23 @@ public class GitUtils {
         return new BranchInfo(last, previous, ref);
     }
 
-    public static int releaseNameToNumber(Pattern pattern, String releaseName, String releaseSuffix) {
-        Matcher matcher = pattern.matcher(releaseName);
-        if (matcher.matches()) {
-            String n_branch = releaseName.replace(releaseSuffix, "").replace(DOT, "");
-            return Integer.parseInt(n_branch);
+    public static int releaseNameToNumber(@NotNull Pattern pattern, @NotNull String releaseName, Log logger) {
+        try {
+            Matcher matcher = pattern.matcher(releaseName);
+            if (matcher.matches()) {
+                String s_branch = matcher.group("number");
+                String n_branch = s_branch.replaceAll("\\D", "");
+                return Integer.parseInt(n_branch);
+            }
         }
+        catch (Exception e) {
+            logger.error("regex did not found a correct release number");
+        }
+        // not following the pattern name - not a release
         return -1;
     }
 
-    public static TreeMap<Integer, Ref> dropBranchesLaterThenCurrentBranches(TreeMap<Integer, Ref> source, int current) {
+    public static TreeMap<Integer, Ref> dropBranchesLaterThenCurrentBranches(@NotNull TreeMap<Integer, Ref> source, int current) {
         if (current < 0) return source;
         String stringTo = String.valueOf(current);
         int lengthTo = stringTo.length();
@@ -51,7 +62,7 @@ public class GitUtils {
     }
 
 
-    public static TreeMap<Integer, Ref> expandBranchNamesAndReorderBranches(TreeMap<Integer, Ref> branches)  {
+    public static TreeMap<Integer, Ref> expandBranchNamesAndReorderBranches(@NotNull TreeMap<Integer, Ref> branches, Log logger)  {
         List<String> keys = branches.keySet().stream().map(String::valueOf).collect(Collectors.toList());
         Optional<Integer> maxLength = keys.stream().map(String::length).max(Integer::compareTo);
         return maxLength.map(it ->
@@ -64,7 +75,11 @@ public class GitUtils {
                     sb.append("0".repeat(l1));
                     AbstractMap.SimpleEntry<Integer, Ref> res = new AbstractMap.SimpleEntry<>(Integer.valueOf(sb.toString()), itt.getValue());
                     return res;
-                }).collect(Collectors.toMap(it1 -> it1.getKey(), it2 -> it2.getValue(), (is1, is2) -> is1,
+                }).collect(Collectors.toMap(it1 -> it1.getKey(), it2 -> it2.getValue(),
+                        (is1, is2) -> {
+                            logger.error("release names collides");
+                            return is1;
+                        },
                         TreeMap::new))).orElse(branches);
     }
 

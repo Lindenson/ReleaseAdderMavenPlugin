@@ -40,9 +40,6 @@ public class AdderPlugin extends AbstractMojo
     @Parameter( property = "regex")
     private String regex;
 
-    @Parameter( property = "suffix")
-    private String suffix;
-
     @Parameter( property = "folder")
     private String folder;
 
@@ -57,7 +54,6 @@ public class AdderPlugin extends AbstractMojo
                 .fileName(METADATA_NAME)
                 .logger(getLog())
                 .releaseRegex(regex)
-                .releaseSuffix(suffix)
                 .releaseDir(folder)
                 .build();
 

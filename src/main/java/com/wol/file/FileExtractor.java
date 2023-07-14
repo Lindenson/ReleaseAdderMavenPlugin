@@ -38,7 +38,6 @@ public class FileExtractor {
     private final String file_name;
     private final String base_dir;
     private final File tech_dir;
-    public final String releaseSuffix;
     private final Pattern pattern;
     private Log logger;
     private Git git;
@@ -48,11 +47,10 @@ public class FileExtractor {
 
     private FileExtractor(
             String fileName, String baseDirName, String techDirName,
-            String releaseSuffix, String releaseRegex, Log logger
+            String releaseRegex, Log logger
     ) {
         this.base_dir = baseDirName;
         this.logger = logger;
-        this.releaseSuffix = releaseSuffix;
         this.file_name = fileName;
 
         try {
@@ -117,7 +115,7 @@ public class FileExtractor {
         BranchInfo branchInfo = new BranchInfo(null, null, null);
         RevWalk rw = null;
         try {
-            TreeMap<Integer, Ref> branches = GitUtils.expandBranchNamesAndReorderBranches(getBranches(git));
+            TreeMap<Integer, Ref> branches = GitUtils.expandBranchNamesAndReorderBranches(getBranches(git), logger);
             TreeMap<Integer, Ref> orderedBranches = GitUtils.dropBranchesLaterThenCurrentBranches(branches, currentBranchNumber(git));        
 
             branchInfo = GitUtils.currentAndPreviousReleaseInfo(orderedBranches);
@@ -163,7 +161,7 @@ public class FileExtractor {
         for (Iterator<Ref> it = iterator; it.hasNext(); ) {
             Ref ref = it.next();
             String name = GitUtils.refNameToBranchName(ref.getName());
-            int releaseNumber = GitUtils.releaseNameToNumber(pattern, name, releaseSuffix);
+            int releaseNumber = GitUtils.releaseNameToNumber(pattern, name, logger);
             //only regex filtered branches
             if (releaseNumber > 0) branchNames.put(releaseNumber, ref);
         }
@@ -174,7 +172,7 @@ public class FileExtractor {
     private Integer currentBranchNumber(Git git) throws IOException {
         Repository repository = git.getRepository();
         String branch = repository.getBranch();
-        int releaseNumber = GitUtils.releaseNameToNumber(pattern, branch, releaseSuffix);
+        int releaseNumber = GitUtils.releaseNameToNumber(pattern, branch, logger);
         return releaseNumber;
     }
 
@@ -189,11 +187,6 @@ public class FileExtractor {
 
         public FEBuilder releaseRegex(String r) {
             this.relR = r;
-            return this;
-        }
-
-        public FEBuilder releaseSuffix(String r) {
-            this.relS = r;
             return this;
         }
 
@@ -217,15 +210,13 @@ public class FileExtractor {
             return this;
         }
 
-        private static String relS;
         private static String relR;
         private String baseD;
         private String techD;
         private Log log;
         private String fileN;
 
-        static final String RELEASE = "release-";
-        static final String RELEASE_REGEX = "release-(\\d+\\.*)*";
+        static final String RELEASE_REGEX = "release-(?<number>(\\d+\\.*)+)[^\\d\\.]*.*";
         static final String TECH_DIR_NAME = "properties_history";
 
         public FileExtractor build(){
@@ -234,9 +225,8 @@ public class FileExtractor {
             if (log == null)   throw new IllegalStateException();
             if (techD == null)  techD = TECH_DIR_NAME;
             if (relR  == null)  relR = RELEASE_REGEX;
-            if (relS  == null)  relS = RELEASE;
 
-            FileExtractor fileExtractor = new FileExtractor(fileN, baseD, techD, relS, relR, log);
+            FileExtractor fileExtractor = new FileExtractor(fileN, baseD, techD, relR, log);
             return fileExtractor;
         }
 

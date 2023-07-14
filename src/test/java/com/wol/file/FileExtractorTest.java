@@ -2,6 +2,7 @@ package com.wol.file;
 
 import com.wol.file.dto.BranchInfo;
 import com.wol.file.dto.GitInfo;
+import com.wol.utils.GitUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.monitor.logging.DefaultLog;
@@ -13,24 +14,26 @@ import org.eclipse.jgit.lib.SymbolicRef;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileExtractorTest {
+
+    Log logger = new DefaultLog(new ConsoleLogger());
+
     @Test
-    public void buildersFailsIfNoProperties() {
+    public void buildersFailsIfNotEnoughProperties() {
         FileExtractor.FEBuilder builder = FileExtractor.builder();
         assertThrows(IllegalStateException.class, () -> builder.build());
     }
 
     @Test
-    public void buildersFailsIfWrongPatter() {
+    public void buildersFailsIfWrongRegex() {
         FileExtractor.FEBuilder builder = FileExtractor.builder();
         builder.releaseRegex("//////////\\\\\\\\\\");
         assertThrows(IllegalStateException.class, () -> builder.build());
@@ -45,7 +48,6 @@ class FileExtractorTest {
 
     @Test
     public void notFailsIfJarFileIsWrongJustGivesEmptyResult() {
-        Log logger = new DefaultLog(new ConsoleLogger());
         FileExtractor fileExtractor = FileExtractor.builder()
                 .baselDir("")
                 .fileName("123")
@@ -61,7 +63,6 @@ class FileExtractorTest {
 
     @Test
     public void notFailsIfGitIsWrongJustGivesEmptyResult() {
-        Log logger = new DefaultLog(new ConsoleLogger());
         FileExtractor fileExtractor = FileExtractor.builder()
                 .baselDir("234")
                 .fileName("123")
@@ -74,12 +75,6 @@ class FileExtractorTest {
 
     @Test
     public void orderBranches() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Log logger = new DefaultLog(new ConsoleLogger());
-        FileExtractor fileExtractor = FileExtractor.builder()
-                .baselDir("234")
-                .fileName("123")
-                .logger(logger)
-                .build();
 
         TreeMap<Integer, Ref> testMap = new TreeMap<>();
         testMap.put(12121, new SymbolicRef(null, null));
@@ -88,25 +83,15 @@ class FileExtractorTest {
         testMap.put(121, new SymbolicRef(null, null));
         testMap.put(1212, new SymbolicRef(null, null));
 
-        Method method = FileExtractor.class.getDeclaredMethod("orderBranches", TreeMap.class);
-        method.setAccessible(true);
-        NavigableMap<Integer, Ref> testResult = (NavigableMap<Integer, Ref> ) method.invoke(fileExtractor, testMap);
+        TreeMap<Integer, Ref> branches = GitUtils.expandBranchNamesAndReorderBranches(testMap, logger);
 
-
-        assertTrue(testResult.size() == 5);
-        assertTrue(testResult.firstKey().equals(10000));
-        assertTrue(testResult.lastKey().equals(12121));
+        assertTrue(branches.size() == 5);
+        assertTrue(branches.firstKey().equals(10000));
+        assertTrue(branches.lastKey().equals(12121));
     }
 
     @Test
     public void lastAndBeforeBranches() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Log logger = new DefaultLog(new ConsoleLogger());
-        FileExtractor fileExtractor = FileExtractor.builder()
-                .baselDir("234")
-                .fileName("123")
-                .logger(logger)
-                .build();
-
         TreeMap<Integer, Ref> testMap = new TreeMap<>();
         testMap.put(12121, new SymbolicRef("12121", null));
         testMap.put(10000, new SymbolicRef("10000", null));
@@ -114,54 +99,59 @@ class FileExtractorTest {
         testMap.put(12110, new SymbolicRef("12110", null));
         testMap.put(12112, new SymbolicRef("12112", null));
 
-        Method method = FileExtractor.class.getDeclaredMethod("lastAndPreviousRelease", TreeMap.class);
-        method.setAccessible(true);
-        BranchInfo testResult = (BranchInfo) method.invoke(fileExtractor, testMap);
-
-        assertEquals("12121", testResult.lastRelease());
-        assertEquals("12112", testResult.beforeLast());
+        BranchInfo branchInfo = GitUtils.currentAndPreviousReleaseInfo(testMap);
+        assertEquals("12121", branchInfo.lastRelease());
+        assertEquals("12112", branchInfo.beforeLast());
         
     }
 
 
     @Test
     public void lastAndBeforeForSingle() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Log logger = new DefaultLog(new ConsoleLogger());
-        FileExtractor fileExtractor = FileExtractor.builder()
-                .baselDir("234")
-                .fileName("123")
-                .logger(logger)
-                .build();
-
         TreeMap<Integer, Ref> testMap = new TreeMap<>();
         testMap.put(12121, new SymbolicRef("12121", null));
 
-        Method method = FileExtractor.class.getDeclaredMethod("lastAndPreviousRelease", TreeMap.class);
-        method.setAccessible(true);
-        BranchInfo testResult = (BranchInfo) method.invoke(fileExtractor, testMap);
-
-        assertEquals("12121", testResult.lastRelease());
-        assertEquals(null, testResult.beforeLast());
+        BranchInfo branchInfo = GitUtils.currentAndPreviousReleaseInfo(testMap);
+        assertEquals("12121", branchInfo.lastRelease());
+        assertEquals(null, branchInfo.beforeLast());
 
     }
 
     @Test
     public void lastAndBeforeForEmpty() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Log logger = new DefaultLog(new ConsoleLogger());
-        FileExtractor fileExtractor = FileExtractor.builder()
-                .baselDir("234")
-                .fileName("123")
-                .logger(logger)
-                .build();
 
         TreeMap<Integer, Ref> testMap = new TreeMap<>();
 
-        Method method = FileExtractor.class.getDeclaredMethod("lastAndPreviousRelease", TreeMap.class);
-        method.setAccessible(true);
-        BranchInfo testResult = (BranchInfo) method.invoke(fileExtractor, testMap);
+        BranchInfo branchInfo = GitUtils.currentAndPreviousReleaseInfo(testMap);
+        assertEquals(null, branchInfo.lastRelease());
+        assertEquals(null, branchInfo.beforeLast());
 
-        assertEquals(null, testResult.lastRelease());
-        assertEquals(null, testResult.beforeLast());
+    }
 
+    @Test
+    public void orderProblematicBranchesLeadsToColision() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        TreeMap<Integer, Ref> testMap = new TreeMap<>();
+        testMap.put(111, new SymbolicRef(null, null));
+        testMap.put(1110, new SymbolicRef(null, null));
+
+
+        TreeMap<Integer, Ref> branches = GitUtils.expandBranchNamesAndReorderBranches(testMap, logger);
+
+        assertEquals(1, branches.size());
+    }
+
+    @Test
+    public void releaseNamesAParsed() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        var pattern= Pattern.compile("release-(?<number>(\\d+\\.*)+)[^\\d\\.]*.*");
+        TreeMap<Integer, String> testMap = new TreeMap<>();
+        testMap.put(11, "release-1.1");
+        testMap.put(121, "release-1.2.1-alpha");
+        testMap.put(112, "release-1.12betta12");
+
+        testMap.entrySet().stream().forEach(it -> {
+            int number = GitUtils.releaseNameToNumber(pattern, it.getValue(), logger);
+            if (!it.getKey().equals(number)) throw new AssertionError(String.format("%s not equals %s", it.getKey(), number));
+        });
     }
 }

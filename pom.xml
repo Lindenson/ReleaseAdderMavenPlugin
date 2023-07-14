@@ -7,7 +7,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>Release Adder Plugin</name>
- 
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
@@ -46,6 +46,11 @@
       <version>5.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>24.0.1</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -68,8 +73,7 @@
         <artifactId>release-adder-maven-plugin</artifactId>
         <version>1.0</version>
         <configuration>
-          <regex>release-(\d+\.*)*</regex>
-          <suffix>release-</suffix>
+          <regex><![CDATA[release-(?<number>(\d+\.*)+)[^\d\.]*.*]]></regex>
           <folder>properties_history</folder>
         </configuration>
         <executions>

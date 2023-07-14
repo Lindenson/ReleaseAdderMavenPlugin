@@ -44,19 +44,46 @@ If the names of the branches are following some pattern to trace back the releas
 - plugin works on `install` phase
 - the goal is `add_version`
 - the *folder* (default `properties_history`) will contain (plugin populates it) all *spring-configuration-metadata.json files of a progect
-- this `folder` is to be added, committed observed by git (important for plugin to work)
+- this `folder` is to be added, committed and observed by git (important for plugin to work)
 - on `install` phase the plugin finds all current *spring-configuration-metadata.json from currently generating JAR and put them into this *folder*
 - you could manually add *spring-configuration-metadata.json to this *folder* for the previouse release and `git commit` it to make this plugin start working
 - then this `folder` (committed) becomes a history of your properties
 - the branch name of release should follow a pattern (to distinguish it from other or technical branches)
-- default pattern is `release-(\\d+\\.*)*`
+- default pattern is `release-(?<number>(\d+\.*)+)[^\d\.]*.*`, named capture is mandatory and corresponds to a number part of a release name
 - plugin finds differences between current *metadata.json from JAR and of the previous release (extracts previous files from the last commit of the previous release form `folder`) 
 - plugin reports in the form of adoc using a template (can be modified) 
-- in order to find the latest releases branch names are sorted mathematically using the number suffix part of `release-(\\d+\\.*)*`
-- for instance, if the last branch (matching the pattern) is release-1.2.3.4.5, the branch release-1.2.3.4.4.9 is considered a previous release
-- all these settings are configurable in pom file
-
-
+- in order to find the latest release branches names are sorted mathematically using the `number` named capture
+- for instance:
+<table>
+<tbody>
+<tr>
+<td><b>found branches</b></td>
+<td><b>become a numbers</b></td>
+<td><b>possible problems</b></td>
+</tr>
+<tr>
+<td><p>release-1.2</p></td>
+<td><p>120</p></td>
+<td><p></p></td>
+</tr>
+<tr>
+<td><p>release-1.2.1-alpha101</p></td>
+<td><p>121</p></td>
+<td><p></p></td>
+</tr>
+<tr>
+<td><p>release-1-betta</p></td>
+<td><p>100</p></td>
+<td><p></p></td>
+</tr>
+<tr>
+<td><p>release-1</p></td>
+<td><p>100</p></td>
+<td><p>collides with the previous - ERROR in a log</p></td>
+</tr>
+</tbody>
+</table> 
+  
 ## Usage example:
 
     <plugin>
@@ -64,8 +91,7 @@ If the names of the branches are following some pattern to trace back the releas
         <artifactId>release-adder-maven-plugin</artifactId>
         <version>1.0</version>
         <configuration>
-          <regex>release-(\d+\.*)*</regex>
-          <suffix>release-</suffix>
+          <regex><![CDATA[release-(?<number>(\d+\.*)+)[^\d\.]*.*]]></regex>
           <folder>properties_history</folder>
         </configuration>
         <executions>
