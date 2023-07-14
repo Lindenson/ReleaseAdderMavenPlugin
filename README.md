@@ -43,7 +43,7 @@ If the names of the branches are following some pattern to trace back the releas
 ## Internals
 - plugin works on `install` phase
 - the goal is `add_version`
-- the *folder* (default `release_adder`) will contain (plugin populates it) all *spring-configuration-metadata.json files of a progect
+- the *folder* (default `properties_history`) will contain (plugin populates it) all *spring-configuration-metadata.json files of a progect
 - this `folder` is to be added, committed observed by git (important for plugin to work)
 - on `install` phase the plugin finds all current *spring-configuration-metadata.json from currently generating JAR and put them into this *folder*
 - you could manually add *spring-configuration-metadata.json to this *folder* for the previouse release and `git commit` it to make this plugin start working
@@ -66,7 +66,7 @@ If the names of the branches are following some pattern to trace back the releas
         <configuration>
           <regex>release-(\d+\.*)*</regex>
           <suffix>release-</suffix>
-          <folder>release_adder</folder>
+          <folder>properties_history</folder>
         </configuration>
         <executions>
           <execution>

@@ -226,7 +226,7 @@ public class FileExtractor {
 
         static final String RELEASE = "release-";
         static final String RELEASE_REGEX = "release-(\\d+\\.*)*";
-        static final String TECH_DIR_NAME = "release_adder";
+        static final String TECH_DIR_NAME = "properties_history";
 
         public FileExtractor build(){
             if (log == null)   throw new IllegalStateException();

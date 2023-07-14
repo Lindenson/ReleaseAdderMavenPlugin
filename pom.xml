@@ -69,8 +69,8 @@
         <version>1.0</version>
         <configuration>
           <regex>release-(\d+\.*)*</regex>
-          <sufix>release-</sufix>
-          <folder>release_adder</folder>
+          <suffix>release-</suffix>
+          <folder>properties_history</folder>
         </configuration>
         <executions>
           <execution>
