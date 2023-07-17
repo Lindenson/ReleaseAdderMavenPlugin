@@ -4,7 +4,6 @@ import com.wol.file.dto.BranchInfo;
 import org.apache.maven.plugin.logging.Log;
 import org.eclipse.jgit.lib.Ref;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,10 +76,10 @@ public class GitUtils {
                     return res;
                 }).collect(Collectors.toMap(it1 -> it1.getKey(), it2 -> it2.getValue(),
                         (is1, is2) -> {
-                            logger.error("release names collides");
+                            logger.error("release names collides! correct names or regex");
                             return is1;
                         },
-                        TreeMap::new))).orElse(branches);
+                TreeMap::new))).orElse(branches);
     }
 
 }

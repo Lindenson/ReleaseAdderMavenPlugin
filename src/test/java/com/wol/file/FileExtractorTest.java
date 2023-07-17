@@ -28,48 +28,51 @@ class FileExtractorTest {
 
     @Test
     public void buildersFailsIfNotEnoughProperties() {
-        FileExtractor.FEBuilder builder = FileExtractor.builder();
+        MetadataJob.FEBuilder builder = MetadataJob.builder();
         assertThrows(IllegalStateException.class, () -> builder.build());
     }
 
     @Test
     public void buildersFailsIfWrongRegex() {
-        FileExtractor.FEBuilder builder = FileExtractor.builder();
+        MetadataJob.FEBuilder builder = MetadataJob.builder();
         builder.releaseRegex("//////////\\\\\\\\\\");
         assertThrows(IllegalStateException.class, () -> builder.build());
     }
 
     @Test
     public void buildersFailsIfWrongDir() {
-        FileExtractor.FEBuilder builder = FileExtractor.builder();
+        MetadataJob.FEBuilder builder = MetadataJob.builder();
         builder.baselDir("213235");
         assertThrows(IllegalStateException.class, () -> builder.build());
     }
 
     @Test
     public void notFailsIfJarFileIsWrongJustGivesEmptyResult() {
-        FileExtractor fileExtractor = FileExtractor.builder()
-                .baselDir("")
-                .fileName("123")
-                .logger(logger)
-                .build();
-        MavenProject mavenProject = new MavenProject();
         Artifact artifact = new DefaultArtifact("1", "1", "1", "1", "1", "1", null);
         artifact.setFile(Paths.get("additional-spring-configuration-metadata.json").toFile());
+        MavenProject mavenProject = new MavenProject();
         mavenProject.setArtifact(artifact);
-        List<Path> metadataFilesFromJar = fileExtractor.getMetadataFilesFromJar(Paths.get("src/main/resources").toFile(), mavenProject);
+
+        MetadataJob metadataJob = MetadataJob.builder()
+                .baselDir("")
+                .fileName("123")
+                .project(mavenProject)
+                .logger(logger)
+                .build();
+
+        List<Path> metadataFilesFromJar = metadataJob.jarExtractor.extractFiles().files();
         assertEquals(0, metadataFilesFromJar.size());
     }
 
     @Test
     public void notFailsIfGitIsWrongJustGivesEmptyResult() {
-        FileExtractor fileExtractor = FileExtractor.builder()
+        MetadataJob metadataJob = MetadataJob.builder()
                 .baselDir("234")
                 .fileName("123")
                 .logger(logger)
                 .build();
 
-        GitInfo metadataFilesFromGit = fileExtractor.getMetadataFilesFromGit();
+        GitInfo metadataFilesFromGit = metadataJob.gitExtractor.extractFiles();
         assertEquals(0, metadataFilesFromGit.files().size());
     }
 

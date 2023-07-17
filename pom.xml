@@ -51,6 +51,12 @@
       <artifactId>annotations</artifactId>
       <version>24.0.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>24.0.1</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -73,7 +79,7 @@
         <artifactId>release-adder-maven-plugin</artifactId>
         <version>1.0</version>
         <configuration>
-          <regex><![CDATA[release-(?<number>(\d+\.*)+)[^\d\.]*.*]]></regex>
+          <regex><![CDATA[release-(?<number>(\d+\.*)+)]]></regex>
           <folder>properties_history</folder>
         </configuration>
         <executions>

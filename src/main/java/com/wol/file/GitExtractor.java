@@ -1,11 +1,10 @@
 package com.wol.file;
 
-
 import com.wol.file.dto.BranchInfo;
 import com.wol.file.dto.GitInfo;
 import com.wol.utils.FileUtils;
+import com.wol.utils.GitUtils;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -19,20 +18,14 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
-import com.wol.utils.GitUtils;
 
-
-public class FileExtractor {
-
-
+public class GitExtractor implements MetadataExtractor{
     public static final String GIT_PREFIX = "git__";
     public static final String DOT_GIT = ".git";
     private final String file_name;
@@ -41,11 +34,11 @@ public class FileExtractor {
     private final Pattern pattern;
     private Log logger;
     private Git git;
+    private CompletableFuture<GitInfo> gitInfo;
 
 
 
-
-    private FileExtractor(
+    protected GitExtractor(
             String fileName, String baseDirName, String techDirName,
             String releaseRegex, Log logger
     ) {
@@ -56,12 +49,16 @@ public class FileExtractor {
         try {
             this.pattern = Pattern.compile(releaseRegex);
             this.tech_dir = Paths.get(base_dir, techDirName).toFile();
+
             FileUtils.deleteFolder(tech_dir);
             Files.createDirectories(tech_dir.toPath());
+
             git = new Git(new FileRepositoryBuilder()
                     .setGitDir(Paths.get(base_dir, DOT_GIT).toFile())
                     .build());
 
+            //start async job
+            gitInfo = CompletableFuture.supplyAsync(this::getGitInfo);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new IllegalStateException();
@@ -69,54 +66,19 @@ public class FileExtractor {
 
     }
 
-    public List<Path> getMetadataFilesFromJar(File target, MavenProject project) {
-        logger.info("Extracting files from JAR");
-        List<Path> list = new ArrayList();
-        try {
-            if (target == null || project == null) return list;
-
-            String absolutePath = target.getAbsolutePath();
-            String artifact_name = project.getArtifact().getFile().getName();
-            if (absolutePath == null || artifact_name == null) return list;
-
-            Path artifact_path = Paths.get(absolutePath, artifact_name);
-            if (artifact_path == null) return null;
-
-            try (JarFile jar = new JarFile(artifact_path.toFile());){
-                Enumeration enumEntries = jar.entries();
-                while (enumEntries.hasMoreElements()) {
-                    JarEntry file = (JarEntry) enumEntries.nextElement();
-                    if (file.getName().contains(file_name)) {
-                        String new_name = Paths.get(file.getName()).toFile().getName();
-                        Path new_path = Paths.get(tech_dir.getAbsolutePath(), new_name);
-
-                        try (InputStream is = jar.getInputStream(file);
-                             FileOutputStream fos = new FileOutputStream(new_path.toFile());) {
-                            while (is.available() > 0) fos.write(is.read());
-                        }
-                        list.add(new_path);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error("error in File extractor");
-            logger.error(e.getMessage());
-        }
-        finally {
-            return list;
-        }
+    @Override
+    public GitInfo extractFiles() {
+        return gitInfo.join();
     }
 
-
-    public GitInfo getMetadataFilesFromGit() {
+    private GitInfo getGitInfo() {
         logger.info("Extracting files from Git");
         List<Path> list = new ArrayList();
         BranchInfo branchInfo = new BranchInfo(null, null, null);
         RevWalk rw = null;
         try {
             TreeMap<Integer, Ref> branches = GitUtils.expandBranchNamesAndReorderBranches(getBranches(git), logger);
-            TreeMap<Integer, Ref> orderedBranches = GitUtils.dropBranchesLaterThenCurrentBranches(branches, currentBranchNumber(git));        
+            TreeMap<Integer, Ref> orderedBranches = GitUtils.dropBranchesLaterThenCurrentBranches(branches, currentBranchNumber(git));
 
             branchInfo = GitUtils.currentAndPreviousReleaseInfo(orderedBranches);
             Ref release_before = branchInfo.beforeRef();
@@ -157,14 +119,17 @@ public class FileExtractor {
     private TreeMap<Integer, Ref> getBranches(Git git) throws GitAPIException {
         TreeMap<Integer, Ref> branchNames = new TreeMap<>();
         ListBranchCommand branches = git.branchList();
-        Iterator<Ref> iterator = branches.call().iterator();
-        for (Iterator<Ref> it = iterator; it.hasNext(); ) {
-            Ref ref = it.next();
-            String name = GitUtils.refNameToBranchName(ref.getName());
-            int releaseNumber = GitUtils.releaseNameToNumber(pattern, name, logger);
-            //only regex filtered branches
-            if (releaseNumber > 0) branchNames.put(releaseNumber, ref);
-        }
+        branches.call().stream().forEach( ref -> {
+                String name = GitUtils.refNameToBranchName(ref.getName());
+                int releaseNumber = GitUtils.releaseNameToNumber(pattern, name, logger);
+                //only regex filtered branches
+                if (releaseNumber > 0) {
+                    if (branchNames.get(releaseNumber)!=null) {
+                        logger.error("release names collides! correct names or regex");
+                    }
+                    else branchNames.put(releaseNumber, ref);
+                }
+        });
         return branchNames;
     }
 
@@ -177,58 +142,4 @@ public class FileExtractor {
     }
 
 
-
-    public static FEBuilder builder(){
-        return new FEBuilder();
-    }
-
-    public static class FEBuilder {
-        private FEBuilder(){}
-
-        public FEBuilder releaseRegex(String r) {
-            this.relR = r;
-            return this;
-        }
-
-        public FEBuilder baselDir(String r) {
-            this.baseD = r;
-            return this;
-        }
-
-        public FEBuilder releaseDir(String r) {
-            this.techD = r;
-            return this;
-        }
-
-        public FEBuilder logger(Log r) {
-            this.log = r;
-            return this;
-        }
-
-        public FEBuilder fileName(String r) {
-            this.fileN = r;
-            return this;
-        }
-
-        private static String relR;
-        private String baseD;
-        private String techD;
-        private Log log;
-        private String fileN;
-
-        static final String RELEASE_REGEX = "release-(?<number>(\\d+\\.*)+)[^\\d\\.]*.*";
-        static final String TECH_DIR_NAME = "properties_history";
-
-        public FileExtractor build(){
-            if (log == null)   throw new IllegalStateException();
-            if (baseD == null) throw new IllegalStateException();
-            if (log == null)   throw new IllegalStateException();
-            if (techD == null)  techD = TECH_DIR_NAME;
-            if (relR  == null)  relR = RELEASE_REGEX;
-
-            FileExtractor fileExtractor = new FileExtractor(fileN, baseD, techD, relR, log);
-            return fileExtractor;
-        }
-
-    }
 }

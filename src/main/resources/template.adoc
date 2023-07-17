@@ -1,8 +1,8 @@
 *Release Adder Plugin Report*
 
-[cols="1,1,1,1"]
+[cols="1,1,1"]
 |===
 
-|Property added |To Release |Property gone |From Release
+|Property added |Property removed | Release
 
 
