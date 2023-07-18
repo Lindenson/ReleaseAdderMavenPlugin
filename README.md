@@ -15,7 +15,7 @@ If the names of the branches are following some pattern to trace back the releas
 
 ## Plugin creates a report in form of ADOC (Example)
 
-<div id="content" style="background: #2C3E50">
+<div id="content" style="font-size: 60%; background: #2C3E50">
 <div class="sect1">
 <h4 id="_created_for_release_release_3_3_0">Created for release-3.3.0</h4>
 <div class="sectionbody">
