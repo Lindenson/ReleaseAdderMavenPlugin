@@ -15,10 +15,9 @@ If the names of the branches are following some pattern to trace back the releas
 
 ## Plugin creates a report in form of ADOC (Example)
 
-</div style="background=#D4AC0D">
-<div id="content">
+<div id="content" style="background: #2C3E50">
 <div class="sect1">
-<h4 id="_created_for_release_release_3_3_0">Created for release release-3.3.0</h4>
+<h4 id="_created_for_release_release_3_3_0">Created for release-3.3.0</h4>
 <div class="sectionbody">
 
 </div>
@@ -124,6 +123,10 @@ If the names of the branches are following some pattern to trace back the releas
 </ul>
 </div>
 </li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 
 ## Internals
@@ -177,7 +180,7 @@ If the names of the branches are following some pattern to trace back the releas
 				<version>1.0</version>
 				<configuration>
 					<folder>release_adder</folder>
-					<regex><![CDATA[release-(?<number>(\d+\.*)+)]]></regex>
+					<regex><![CDATA[release-(?<number>(\d+\.*)+)[^\d\.]*.*]]></regex>
 				</configuration>
 				<executions>
 					<execution>
