@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +21,7 @@ class GrouperTest {
         Grouper grouper = new Grouper(logger);
         List<String> strings = List.of( "source.set1.subset1",
                                         "source.set2.subset1.susubset33",
-                                        "source",
+                                        "source", // root string ignored (log.error) - only map is good for the root
                                         "source.set2",
                                         "source.set2.subset1",
                                         "source.set2.subset2",
@@ -34,7 +32,11 @@ class GrouperTest {
                                         "source1.set1.subset1",
                                         "source.set2.subset1.susubset22");
         strings.stream().forEach( it -> result.set(grouper.makeGroups(it, result.get())));
-        System.out.println(result.get());
-        assertEquals(2, ((Map<?, ?>) result.get()).size());
+        Map<String, List<Object>> resultMap = (Map<String, List<Object>>) result.get();
+
+        StringBuilder stringBuilder = grouper.printUngrouped(resultMap, new StringBuilder(), 1);
+        assertEquals(2, resultMap.size());
+        assertEquals(159, stringBuilder.toString().length());
+
     }
 }

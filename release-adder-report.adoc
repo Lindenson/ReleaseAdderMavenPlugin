@@ -1,12 +1,15 @@
 = Release Adder Plugin Report
 
-== Created for release {{ re }}
+== Created for release 1
 
 == Properties added
 
-{{ ad }}
+* prop1
+** pr1
+
 
 == Properties removed
 
-{{ ar }}
+* prop2
+** p2
 

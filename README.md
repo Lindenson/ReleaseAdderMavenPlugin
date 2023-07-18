@@ -13,32 +13,118 @@ If the names of the branches are following some pattern to trace back the releas
 - compare them and find which properties were added or removed while moving from the previouse release to the new one
 - generate a report
 
-## Plugin creates a report in form of ADOC
+## Plugin creates a report in form of ADOC (Example)
 
-### Example
+</div>
+<div id="content">
+<div class="sect1">
+<h4 id="_created_for_release_release_3_3_0">Created for release release-3.3.0</h4>
+<div class="sectionbody">
 
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Property added</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To Release</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Property gone</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">From Release</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">token-cache-config.max-size3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">release-1.0.3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">token-cache-config.max-size1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">release-1.0.2</p></td>
-</tr>
-</tbody>
-</table>
+</div>
+</div>
+<div class="sect1">
+<h4 id="_properties_added">Properties added</h4>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>default-proactive-action</p>
+<div class="ulist">
+<ul>
+<li>
+<p>input</p>
+</li>
+<li>
+<p>method-name</p>
+</li>
+<li>
+<p>result-variable</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>lock</p>
+<div class="ulist">
+<ul>
+<li>
+<p>cache</p>
+<div class="ulist">
+<ul>
+<li>
+<p>enabled</p>
+</li>
+<li>
+<p>size</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>token-cache-config</p>
+<div class="ulist">
+<ul>
+<li>
+<p>enabled</p>
+</li>
+<li>
+<p>max-size3</p>
+</li>
+<li>
+<p>refresh-ahead-seconds</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+	<h4 id="_properties_removed">Properties removed</h4>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>automatic-language-detection</p>
+<div class="ulist">
+<ul>
+<li>
+<p>enabled</p>
+</li>
+<li>
+<p>expected-language</p>
+</li>
+<li>
+<p>foreign-language-detected-keyword</p>
+</li>
+<li>
+<p>gtp-target</p>
+</li>
+<li>
+<p>provider</p>
+</li>
+<li>
+<p>result-variable</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>callback</p>
+<div class="ulist">
+<ul>
+<li>
+<p>allowed-http-destinations</p>
+</li>
+</ul>
+</div>
+</li>
+</div>
 
 ## Internals
 - plugin works on `install` phase
@@ -62,6 +148,16 @@ If the names of the branches are following some pattern to trace back the releas
 <td><b>possible problems</b></td>
 </tr>
 <tr>
+<td><p>release-1</p></td>
+<td><p>100</p></td>
+<td><p></p></td>
+</tr>
+<tr>
+<td><p>release-1-betta</p></td>
+<td><p>100</p></td>
+<td><p>collides with the previous - ignored - ERROR in a log suggests to use more specific regex</p></td>
+</tr>
+<tr>
 <td><p>release-1.2</p></td>
 <td><p>120</p></td>
 <td><p></p></td>
@@ -71,37 +167,24 @@ If the names of the branches are following some pattern to trace back the releas
 <td><p>121</p></td>
 <td><p></p></td>
 </tr>
-<tr>
-<td><p>release-1-betta</p></td>
-<td><p>100</p></td>
-<td><p></p></td>
-</tr>
-<tr>
-<td><p>release-1</p></td>
-<td><p>100</p></td>
-<td><p>collides with the previous - ERROR in a log</p></td>
-</tr>
 </tbody>
 </table> 
   
-## Usage example:
-
-    <plugin>
-        <groupId>com.wol</groupId>
-        <artifactId>release-adder-maven-plugin</artifactId>
-        <version>1.0</version>
-        <configuration>
-          <regex><![CDATA[release-(?<number>(\d+\.*)+)[^\d\.]*.*]]></regex>
-          <folder>properties_history</folder>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>install</phase>
-            <goals>
-              <goal>add_version</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-
+## Usage example (for typical release-X.X.X.X where X is an integer):
+			<plugin>
+				<groupId>com.wol</groupId>
+				<artifactId>release-adder-maven-plugin</artifactId>
+				<version>1.0</version>
+				<configuration>
+					<folder>release_adder</folder>
+					<regex><![CDATA[release-(?<number>(\d+\.*)+)]]></regex>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>add_version</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>

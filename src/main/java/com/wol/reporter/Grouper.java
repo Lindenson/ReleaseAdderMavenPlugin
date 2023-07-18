@@ -1,5 +1,6 @@
 package com.wol.reporter;
 
+import com.github.jknack.handlebars.Handlebars;
 import org.apache.maven.plugin.logging.Log;
 
 import java.util.*;
@@ -50,5 +51,18 @@ public class Grouper {
                 return result;
             }
         return source;
+    }
+
+    public StringBuilder printUngrouped(Map<String, List<Object>> result, StringBuilder stringBuilder, int level) {
+         result.entrySet().stream().forEach(it -> {
+             stringBuilder.append(String.format("%s %s\n", "*".repeat(level), it.getKey()));
+             List<Object> list = it.getValue();
+             list.sort(Comparator.comparing(it2 -> it2.toString()));
+             list.stream().forEach(ix -> {
+                 if (ix instanceof String) stringBuilder.append(String.format("%s %s\n", "*".repeat(level + 1), ix));
+                 else printUngrouped((Map<String, List<Object>>)ix, stringBuilder, level + 1);
+             });
+         });
+        return stringBuilder;
     }
 }
