@@ -1,0 +1,19 @@
+****
+Properties versioning maven plugin version {{ version }}
+[discrete]
+== [navy]#Spring Configuration Properties#
+[discrete]
+==== added to {{ current }} and removed from {{ before }}
+****
+
+
+
+=== [navy]#Properties added#
+
+{{ added }}
+
+=== [navy]#Properties removed#
+
+{{ removed }}
+
+====  [teal]#Report generated at {{ date }}#
