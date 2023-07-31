@@ -3,6 +3,8 @@ package com.wol.reporter;
 import java.util.Map;
 
 public class AdocSimpleList {
+
+    private AdocSimpleList() {}
     public static String prettyPrint(Map<String, String> result) {
         StringBuilder stringBuilder = new StringBuilder();
         result.keySet().stream().forEach(s -> {
