@@ -40,8 +40,7 @@ public class JsonComparator {
         Iterator<JsonNode> elements = properties.elements();
         while (elements.hasNext()) {
             JsonNode next = elements.next();
-            if (Objects.isNull(next.get(DEFAULT_VALUE))) continue;
-            if (Objects.isNull(next.get(NAME))) continue;
+            if (Objects.isNull(next.get(NAME)) || Objects.isNull(next.get(DEFAULT_VALUE))) continue;
             String dValue = next.get(DEFAULT_VALUE).asText();
             String name = next.get(NAME).asText();
             defaults.put(name, dValue);
@@ -51,22 +50,22 @@ public class JsonComparator {
 
     public DiffSets differenceNames(List<Path> p1, List<Path> p2, Log logger) {
         logger.info("Comparing properties names");
-        Set<String> strings1 = new TreeSet<>();
-        Set<String> strings2 = new TreeSet<>();
-        Set<String> strings3 = new TreeSet<>();
+        Set<String> set1 = new TreeSet<>();
+        Set<String> set2 = new TreeSet<>();
+        Set<String> set3 = new TreeSet<>();
         try {
-            for (Path p : p1)  strings1.addAll(parseJSONFileForNames(p));
-            for (Path p : p2)  strings2.addAll(parseJSONFileForNames(p));
-            strings3.addAll(strings1);
-            strings3.removeAll(strings2);
-            strings2.removeAll(strings1);
+            for (Path p : p1)  set1.addAll(parseJSONFileForNames(p));
+            for (Path p : p2)  set2.addAll(parseJSONFileForNames(p));
+            set3.addAll(set1);
+            set3.removeAll(set2);
+            set2.removeAll(set1);
         }
         catch (Exception e) {
             logger.error("error while comparing JSONs");
             logger.error(e.getMessage());
             return new DiffSets(new TreeSet<>(), new TreeSet<>());
         }
-        return new DiffSets(strings3, strings2);
+        return new DiffSets(set3, set2);
 
     }
 

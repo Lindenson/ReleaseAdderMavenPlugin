@@ -80,7 +80,7 @@ public class ReporterAdoc {
                 before,
                 added.toString(),
                 removed.toString(),
-                AdocSimpleList.prettyPrint(defValuesChanged).toString(),
+                AdocSimpleList.prettyPrint(defValuesChanged),
                 LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
         ));
     }

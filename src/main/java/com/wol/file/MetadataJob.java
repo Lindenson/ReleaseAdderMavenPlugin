@@ -40,10 +40,10 @@ public class MetadataJob {
         GitInfo gitInfo = gitExtractor.extractFiles();
         if (gitInfo.valid() && jarInfo.valid()) {
             JsonComparator.DiffSets namesDiffSet = comparator.differenceNames(jarInfo.files(), gitInfo.files(), logger);
-            Map<String, String> defValuseDiffMap = comparator.differenceValues(jarInfo.files(), gitInfo.files(), logger);
+            Map<String, String> defValuesDiffMap = comparator.differenceValues(jarInfo.files(), gitInfo.files(), logger);
             String current = Objects.requireNonNullElse(gitInfo.branch().lastRelease(), UNKNOWN);
             String before = Objects.requireNonNullElse(gitInfo.branch().beforeLast(), UNKNOWN);
-            reporter.generate(namesDiffSet.current(), namesDiffSet.before(), defValuseDiffMap, current, before);
+            reporter.generate(namesDiffSet.current(), namesDiffSet.before(), defValuesDiffMap, current, before);
             cleanStage(gitInfo.files());
         }
         else errorMessageLog(jarInfo, gitInfo);
