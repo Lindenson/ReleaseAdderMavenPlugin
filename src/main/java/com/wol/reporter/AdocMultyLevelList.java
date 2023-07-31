@@ -3,7 +3,7 @@ package com.wol.reporter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AdocGrouper {
+public class AdocMultyLevelList {
 
     private String root = UUID.randomUUID().toString();
 
@@ -11,7 +11,7 @@ public class AdocGrouper {
         return makeMapGroups(root + '.' + source, (Map<String, List<Object>>) result);
     }
 
-    public StringBuilder prettyPrintForAdoc(Map<String, List<Object>> result) {
+    public StringBuilder prettyPrintMultilevelList(Map<String, List<Object>> result) {
         StringBuilder stringBuilder = new StringBuilder();
         printUngrouped(result, stringBuilder, 0);
         return stringBuilder;
@@ -51,7 +51,7 @@ public class AdocGrouper {
 
     private void printUngrouped(Map<String, List<Object>> result, StringBuilder stringBuilder, int level) {
         if (Objects.isNull(result)) return;
-         result.entrySet().stream().forEach(it -> {
+        result.entrySet().stream().forEach(it -> {
              if (level > 0) stringBuilder.append(String.format("%s %s%n", "*".repeat(level), it.getKey()));
              List<Object> list = it.getValue();
              list.sort(Comparator.comparing(Object::toString));
@@ -59,6 +59,6 @@ public class AdocGrouper {
                  if (ix instanceof String) stringBuilder.append(String.format("%s %s%n", "*".repeat(level + 1), ix));
                  else printUngrouped((Map<String, List<Object>>)ix, stringBuilder, level + 1);
              });
-         });
+        });
     }
 }

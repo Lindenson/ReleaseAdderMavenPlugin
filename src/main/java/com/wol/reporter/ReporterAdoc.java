@@ -19,10 +19,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ReporterAdoc {
+    public static final String PLUGIN_VERSION = "2.0";
     private List<String> templateStrings;
     private final Path destination;
     private final Log logger;
-    private AdocGrouper grouper;
+    private AdocMultyLevelList grouper;
     private AtomicReference<Object> resultAdded = new AtomicReference<>(null);
     private AtomicReference<Object> resultRemoved = new AtomicReference<>(null);
 
@@ -30,7 +31,7 @@ public class ReporterAdoc {
     public ReporterAdoc(String templateFile, Path destination, Log logger) {
         this.destination = destination;
         this.logger = logger;
-        this.grouper = new AdocGrouper();
+        this.grouper = new AdocMultyLevelList();
 
         try (InputStream in = getClass().getResourceAsStream(templateFile);
              BufferedReader reader = new BufferedReader(new InputStreamReader(in)))
@@ -42,44 +43,54 @@ public class ReporterAdoc {
         }
     }
 
-    public void generate(Set<String> added, Set<String> removed, String from, String to) {
-        if (added == null || removed == null || from == null || to == null) return;
+    public void generate(Set<String> added, Set<String> removed, Map<String, String> defaultsChanged, String current, String before) {
+        if (added == null || removed == null || current == null || before == null || defaultsChanged == null) return;
 
-        logger.info(String.format("Creating report comparing releases between %s, to %s", from, to));
+        logger.info(String.format("Creating report comparing releases between %s, before %s", current, before));
 
         try {
             removed.stream().forEach( it -> resultRemoved.set(grouper.makeMultiLevelList(it, resultRemoved.get())));
             added.stream().forEach( it -> resultAdded.set(grouper.makeMultiLevelList(it,  resultAdded.get())));
-            applyTemplate(from, to, (Map<String, List<Object>>) resultAdded.get(), (Map<String, List<Object>>) resultRemoved.get());
+            applyTemplate(current,
+                          before,
+                          (Map<String, List<Object>>) resultAdded.get(),
+                          (Map<String, List<Object>>) resultRemoved.get(),
+                          defaultsChanged
+            );
         } catch (Exception e) {
             logger.error("error creating report");
             logger.error(e.getMessage());
         }
     }
 
-    private void applyTemplate(String from, String to,
-                                Map<String, List<Object>> resultMapAdded,
-                                Map<String, List<Object>> resultMapRemoved) throws IOException
+    private void applyTemplate(String current, String before,
+                                Map<String, List<Object>> propsAdded,
+                                Map<String, List<Object>> propsRemoved,
+                                Map<String, String> defValuesChanged
+                              ) throws IOException
     {
-        StringBuilder added = grouper.prettyPrintForAdoc(resultMapAdded);
-        StringBuilder removed = grouper.prettyPrintForAdoc(resultMapRemoved);
+        StringBuilder added = grouper.prettyPrintMultilevelList(propsAdded);
+        StringBuilder removed = grouper.prettyPrintMultilevelList(propsRemoved);
 
         Handlebars handlebars = new Handlebars();
         Template template = handlebars.compileInline(this.templateStrings.stream().collect(Collectors.joining("\n")));
         Files.writeString(destination, template.apply(new TemplateDto(
-                "1.1",
-                from,
-                to,
+                PLUGIN_VERSION,
+                current,
+                before,
                 added.toString(),
                 removed.toString(),
+                AdocSimpleList.prettyPrint(defValuesChanged).toString(),
                 LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
         ));
     }
+
 
     private record TemplateDto(String version,
                                String current,
                                String before,
                                String added,
                                String removed,
+                               String defaults,
                                String date){}
 }

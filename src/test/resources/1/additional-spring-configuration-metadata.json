@@ -1,0 +1,31 @@
+{
+  "properties": [
+    {
+      "name": "server.var3.subvar1",
+      "type": "java.lang.Integer",
+      "description": "Subvar1",
+      "sourceType": "com.wol.Configuration1",
+      "defaultValue": 11000
+    },
+    {
+      "name": "server.var3.subvar2",
+      "type": "java.lang.Integer",
+      "description": "Subvar2",
+      "sourceType": "com.wol.Configuration1",
+      "defaultValue": 10000
+    },
+    {
+      "name": "server.var4.subvar1",
+      "type": "java.lang.String",
+      "description": "Subvar1",
+      "sourceType": "com.wol.Configuration2",
+      "defaultValue": "init1"
+    },
+    {
+      "name": "server.var4.subvar2",
+      "type": "java.lang.String",
+      "description": "Subvar2",
+      "sourceType": "com.wol.Configuration2",
+      "defaultValue": "init2"
+    }]
+}

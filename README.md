@@ -17,7 +17,7 @@ If the names of the branches are following some pattern to trace back the releas
 
 ---
 
-#### Properties versioning maven plugin version 1.1
+#### Properties versioning maven plugin version 2.0
 ### Spring Configuration Properties
 
 #### added to 2.1 and removed from 2.0
@@ -91,6 +91,15 @@ If the names of the branches are following some pattern to trace back the releas
 </li>
 </ul>
 </div>
+<h4>Default values changed</h4>
+<ul>
+<li>
+<p>action.password = admin</p>
+</li>
+<li>
+<p>action.username = admin</p>
+</li>
+</ul>
 
 
 ---

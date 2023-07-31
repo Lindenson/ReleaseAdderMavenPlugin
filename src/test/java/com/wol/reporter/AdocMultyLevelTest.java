@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
-class AdocGrouperTest {
+class AdocMultyLevelTest {
 
     @Test
     void makeComplexMapGroups() {
         AtomicReference<Object> result = new AtomicReference<>(null);
-        AdocGrouper adocGrouper = new AdocGrouper();
+        AdocMultyLevelList adocMultyLevelList = new AdocMultyLevelList();
         List<String> strings = List.of( "source.set1.subset1",
                                         "source.set2.subset1.susubset33",
                                         "source",
@@ -25,10 +25,10 @@ class AdocGrouperTest {
                                         "source.set1",
                                         "source1.set1.subset1",
                                         "source.set2.subset1.susubset22");
-        strings.stream().forEach( it -> result.set(adocGrouper.makeMultiLevelList(it, result.get())));
+        strings.stream().forEach( it -> result.set(adocMultyLevelList.makeMultiLevelList(it, result.get())));
         Map<String, List<Object>> resultMap = (Map<String, List<Object>>) result.get();
 
-        StringBuilder stringBuilder = adocGrouper.prettyPrintForAdoc(resultMap);
+        StringBuilder stringBuilder = adocMultyLevelList.prettyPrintMultilevelList(resultMap);
         assertEquals(
                 "* source\n" +
                 "* source\n" +
@@ -55,12 +55,12 @@ class AdocGrouperTest {
     @Test
     void makeEmptyMapGroups() {
         AtomicReference<Object> result = new AtomicReference<>(null);
-        AdocGrouper adocGrouper = new AdocGrouper();
+        AdocMultyLevelList adocMultyLevelList = new AdocMultyLevelList();
         List<String> strings = List.of( );
-        strings.stream().forEach( it -> result.set(adocGrouper.makeMultiLevelList(it, result.get())));
+        strings.stream().forEach( it -> result.set(adocMultyLevelList.makeMultiLevelList(it, result.get())));
         Map<String, List<Object>> resultMap = (Map<String, List<Object>>) result.get();
 
-        StringBuilder stringBuilder = adocGrouper.prettyPrintForAdoc(resultMap);
+        StringBuilder stringBuilder = adocMultyLevelList.prettyPrintMultilevelList(resultMap);
         assertEquals(
                 "", stringBuilder.toString());
 
@@ -70,12 +70,12 @@ class AdocGrouperTest {
     @Test
     void makeOneLeafMapGroups() {
         AtomicReference<Object> result = new AtomicReference<>(null);
-        AdocGrouper adocGrouper = new AdocGrouper();
+        AdocMultyLevelList adocMultyLevelList = new AdocMultyLevelList();
         List<String> strings = List.of( "source");
-        strings.stream().forEach( it -> result.set(adocGrouper.makeMultiLevelList(it, result.get())));
+        strings.stream().forEach( it -> result.set(adocMultyLevelList.makeMultiLevelList(it, result.get())));
         Map<String, List<Object>> resultMap = (Map<String, List<Object>>) result.get();
 
-        StringBuilder stringBuilder = adocGrouper.prettyPrintForAdoc(resultMap);
+        StringBuilder stringBuilder = adocMultyLevelList.prettyPrintMultilevelList(resultMap);
         assertEquals("* source\n", stringBuilder.toString());
 
     }
@@ -83,12 +83,12 @@ class AdocGrouperTest {
     @Test
     void makeTwoLeafMapGroups() {
         AtomicReference<Object> result = new AtomicReference<>(null);
-        AdocGrouper adocGrouper = new AdocGrouper();
+        AdocMultyLevelList adocMultyLevelList = new AdocMultyLevelList();
         List<String> strings = List.of( "source", "source");
-        strings.stream().forEach( it -> result.set(adocGrouper.makeMultiLevelList(it, result.get())));
+        strings.stream().forEach( it -> result.set(adocMultyLevelList.makeMultiLevelList(it, result.get())));
         Map<String, List<Object>> resultMap = (Map<String, List<Object>>) result.get();
 
-        StringBuilder stringBuilder = adocGrouper.prettyPrintForAdoc(resultMap);
+        StringBuilder stringBuilder = adocMultyLevelList.prettyPrintMultilevelList(resultMap);
         assertEquals("* source\n* source\n", stringBuilder.toString());
 
     }

@@ -16,4 +16,8 @@ Properties versioning maven plugin version {{ version }}
 
 {{ removed }}
 
+=== [navy]#Default values changed#
+
+{{ defaults }}
+
 ====  [teal]#Report generated at {{ date }}#

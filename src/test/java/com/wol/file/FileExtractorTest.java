@@ -14,7 +14,6 @@ import org.eclipse.jgit.lib.SymbolicRef;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +50,7 @@ class FileExtractorTest {
     @Test
     void notFailsIfJarFileIsWrongJustGivesEmptyResult() {
         Artifact artifact = new DefaultArtifact("1", "1", "1", "1", "1", "1", null);
-        artifact.setFile(Paths.get("additional-spring-configuration-metadata.json").toFile());
+        artifact.setFile(Paths.get("src/test/resources/additional-spring-configuration-metadata.json").toFile());
         MavenProject mavenProject = new MavenProject();
         mavenProject.setArtifact(artifact);
 

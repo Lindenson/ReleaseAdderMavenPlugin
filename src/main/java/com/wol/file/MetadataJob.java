@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -38,10 +39,11 @@ public class MetadataJob {
         JarInfo jarInfo = jarExtractor.extractFiles();
         GitInfo gitInfo = gitExtractor.extractFiles();
         if (gitInfo.valid() && jarInfo.valid()) {
-            JsonComparator.DiffSets diffSets = comparator.differenceJSON(jarInfo.files(), gitInfo.files(), logger);
+            JsonComparator.DiffSets namesDiffSet = comparator.differenceNames(jarInfo.files(), gitInfo.files(), logger);
+            Map<String, String> defValuseDiffMap = comparator.differenceValues(jarInfo.files(), gitInfo.files(), logger);
             String current = Objects.requireNonNullElse(gitInfo.branch().lastRelease(), UNKNOWN);
             String before = Objects.requireNonNullElse(gitInfo.branch().beforeLast(), UNKNOWN);
-            reporter.generate(diffSets.from(), diffSets.to(), current, before);
+            reporter.generate(namesDiffSet.current(), namesDiffSet.before(), defValuseDiffMap, current, before);
             cleanStage(gitInfo.files());
         }
         else errorMessageLog(jarInfo, gitInfo);
@@ -61,7 +63,7 @@ public class MetadataJob {
     }
 
     private void cleanStage(List<Path> filesToClean) {
-        // clean files extracted from git
+        // clean files extracted current git
         filesToClean.stream().forEach(it -> {
             try {
                 Files.deleteIfExists(it);
