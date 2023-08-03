@@ -54,11 +54,14 @@
           <entry name="$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.1.4/httpcore-4.1.4.jar" />
           <entry name="$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" />
           <entry name="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.4/commons-codec-1.4.jar" />
-          <entry name="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.14.2/jackson-databind-2.14.2.jar" />
-          <entry name="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.14.2/jackson-annotations-2.14.2.jar" />
-          <entry name="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.14.2/jackson-core-2.14.2.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.15.1/jackson-databind-2.15.1.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.15.1/jackson-annotations-2.15.1.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.15.1/jackson-core-2.15.1.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/jetbrains/annotations/24.0.1/annotations-24.0.1.jar" />
           <entry name="$MAVEN_REPOSITORY$/com/github/jknack/handlebars/4.3.1/handlebars-4.3.1.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/google/auto/service/auto-service/1.0.1/auto-service-1.0.1.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/google/auto/service/auto-service-annotations/1.0.1/auto-service-annotations-1.0.1.jar" />
+          <entry name="$MAVEN_REPOSITORY$/com/google/auto/auto-common/1.2/auto-common-1.2.jar" />
         </processorPath>
         <module name="ReleaseAdderMavenPlugin" />
       </profile>

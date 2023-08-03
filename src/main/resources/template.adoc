@@ -6,7 +6,7 @@ Properties versioning maven plugin version {{ version }}
 ==== added to {{ current }} and removed from {{ before }}
 ****
 
-
+{{ attributes }}
 
 === [navy]#Properties added#
 
@@ -16,8 +16,15 @@ Properties versioning maven plugin version {{ version }}
 
 {{ removed }}
 
+ifdef::defaults[]
+
 === [navy]#Default values changed#
 
 {{ defaults }}
+
+endif::[]
+
+include::mandatory-properties.adoc[opts=optional]
+
 
 ====  [teal]#Report generated at {{ date }}#

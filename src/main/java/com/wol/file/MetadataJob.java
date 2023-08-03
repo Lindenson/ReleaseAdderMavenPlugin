@@ -39,6 +39,7 @@ public class MetadataJob {
     public void doJob(JsonComparator comparator, ReporterAdoc reporter) {
         JarInfo jarInfo = jarExtractor.extractFiles();
         GitInfo gitInfo = gitExtractor.extractFiles();
+
         if (gitInfo.valid() && jarInfo.valid()) {
             JsonComparator.DiffSets namesDiffSet = comparator.differenceNames(jarInfo.files(), gitInfo.files(), logger);
             Map<String, String> defValuesDiffMap = comparator.differenceValues(jarInfo.files(), gitInfo.files(), logger);
