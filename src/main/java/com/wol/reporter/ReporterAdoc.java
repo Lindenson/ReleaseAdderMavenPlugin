@@ -23,7 +23,7 @@ public class ReporterAdoc {
     private List<String> templateStrings;
     private final Path destination;
     private final Log logger;
-    private AdocMultyLevelList grouper;
+    private AdocMultiLevelMap grouper;
     private AtomicReference<Object> resultAdded = new AtomicReference<>(null);
     private AtomicReference<Object> resultRemoved = new AtomicReference<>(null);
 
@@ -31,7 +31,7 @@ public class ReporterAdoc {
     public ReporterAdoc(String templateFile, Path destination, Log logger) {
         this.destination = destination;
         this.logger = logger;
-        this.grouper = new AdocMultyLevelList();
+        this.grouper = new AdocMultiLevelMap();
 
         try (InputStream in = getClass().getResourceAsStream(templateFile);
              BufferedReader reader = new BufferedReader(new InputStreamReader(in)))
@@ -49,8 +49,8 @@ public class ReporterAdoc {
         logger.info(String.format("Creating report comparing releases between %s, before %s", current, before));
 
         try {
-            removed.stream().forEach( it -> resultRemoved.set(grouper.makeMultiLevelList(it, resultRemoved.get())));
-            added.stream().forEach( it -> resultAdded.set(grouper.makeMultiLevelList(it,  resultAdded.get())));
+            removed.stream().forEach( it -> resultRemoved.set(grouper.makeMultiLevelMap(it, resultRemoved.get())));
+            added.stream().forEach( it -> resultAdded.set(grouper.makeMultiLevelMap(it,  resultAdded.get())));
             applyTemplate(current,
                           before,
                           (Map<String, List<Object>>) resultAdded.get(),
@@ -69,8 +69,8 @@ public class ReporterAdoc {
                                 Map<String, String> defValuesChanged
                               ) throws IOException
     {
-        StringBuilder added = grouper.prettyPrintMultilevelList(propsAdded);
-        StringBuilder removed = grouper.prettyPrintMultilevelList(propsRemoved);
+        StringBuilder added = grouper.prettyPrint(propsAdded);
+        StringBuilder removed = grouper.prettyPrint(propsRemoved);
 
         Handlebars handlebars = new Handlebars();
         Template template = handlebars.compileInline(this.templateStrings.stream().collect(Collectors.joining("\n")));
@@ -80,7 +80,7 @@ public class ReporterAdoc {
                 before,
                 added.toString(),
                 removed.toString(),
-                AdocSimpleList.prettyPrint(defValuesChanged),
+                AdocSimpleMap.prettyPrint(defValuesChanged),
                 LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
         ));
     }

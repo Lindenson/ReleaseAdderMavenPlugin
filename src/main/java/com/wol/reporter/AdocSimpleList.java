@@ -1,17 +1,15 @@
 package com.wol.reporter;
 
-import java.util.Map;
+import java.util.List;
 
 public class AdocSimpleList {
 
     private AdocSimpleList() {}
-    public static String prettyPrint(Map<String, String> result) {
+    public static String prettyPrint(List<String> result) {
         StringBuilder stringBuilder = new StringBuilder();
-        result.keySet().stream().forEach(s -> {
+        result.stream().forEach(s -> {
             stringBuilder.append(" * ");
             stringBuilder.append(s);
-            stringBuilder.append(" = ");
-            stringBuilder.append(result.get(s));
             stringBuilder.append("\n");
         });
         return stringBuilder.toString();

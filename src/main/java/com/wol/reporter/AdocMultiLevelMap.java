@@ -3,15 +3,15 @@ package com.wol.reporter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AdocMultyLevelList {
+public class AdocMultiLevelMap {
 
     private String root = UUID.randomUUID().toString();
 
-    public Object makeMultiLevelList(String source, Object result) {
+    public Object makeMultiLevelMap(String source, Object result) {
         return makeMapGroups(root + '.' + source, (Map<String, List<Object>>) result);
     }
 
-    public StringBuilder prettyPrintMultilevelList(Map<String, List<Object>> result) {
+    public StringBuilder prettyPrint(Map<String, List<Object>> result) {
         StringBuilder stringBuilder = new StringBuilder();
         printUngrouped(result, stringBuilder, 0);
         return stringBuilder;

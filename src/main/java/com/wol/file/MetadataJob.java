@@ -1,6 +1,7 @@
 package com.wol.file;
 
 
+import com.wol.annotations.Mandatory;
 import com.wol.file.dto.GitInfo;
 import com.wol.file.dto.JarInfo;
 import com.wol.json.JsonComparator;
