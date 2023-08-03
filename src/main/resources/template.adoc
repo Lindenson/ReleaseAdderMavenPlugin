@@ -24,7 +24,7 @@ ifdef::defaults[]
 
 endif::[]
 
-include::mandatory-properties.adoc[opts=optional]
+include::properties-mandatory.adoc[opts=optional]
 
 
 ====  [teal]#Report generated at {{ date }}#

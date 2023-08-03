@@ -21,7 +21,7 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class MandatoryPropertyAnnotationProcessor extends AbstractProcessor {
 
-    public static final String NAME_OF_SPRING_ANNOTATION = "Non";
+    public static final String NAME_OF_SPRING_ANNOTATION = "ConfigurationProperties";
     public static final String PROPERTIES_MANDATORY_ADOC = "properties-mandatory.adoc";
 
 
