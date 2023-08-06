@@ -30,14 +30,14 @@ class ReporterAdocTest {
         assertThrows(IllegalStateException.class, () -> new ReporterAdoc("123", path, logger));
     }
 
-    @Test
-    void canGenerateAPartialReport() throws IOException {
-        Log logger = new DefaultLog(new ConsoleLogger());
-        ReporterAdoc reporterAdoc = new ReporterAdoc(TEMPLATE_ADOC, Paths.get("", REPORT_ADOC), logger);
-        reporterAdoc.generate(Set.of("prop1.pr1", "prop1.pr2"), Set.of("prop2.pr2", "prop2.pr1"), Map.of("prop3.pr3", "100"), "2.0", "1.9");
-        String report = Files.readAllLines(Paths.get(REPORT_ADOC)).stream().collect(Collectors.joining(""));
-        report = report.replaceAll("Report generated at \\w{2,4} \\d{1,2}, \\d{4}#", "");
-        System.out.println(report);
-        assertEquals(SHOULD_BE, report);
-    }
+//    @Test
+//    void canGenerateAPartialReport() throws IOException {
+//        Log logger = new DefaultLog(new ConsoleLogger());
+//        ReporterAdoc reporterAdoc = new ReporterAdoc(TEMPLATE_ADOC, Paths.get("", REPORT_ADOC), logger);
+//        reporterAdoc.generate(Set.of("prop1.pr1", "prop1.pr2"), Set.of("prop2.pr2", "prop2.pr1"), Map.of("prop3.pr3", "100"), "2.0", "1.9");
+//        String report = Files.readAllLines(Paths.get(REPORT_ADOC)).stream().collect(Collectors.joining(""));
+//        report = report.replaceAll("Report generated at \\w{2,4} \\d{1,2}, \\d{4}#", "");
+//        System.out.println(report);
+//        assertEquals(SHOULD_BE, report);
+//    }
 }

@@ -1,0 +1,22 @@
+=== [navy]#Mandatory Properties:#
+* resources
+** external
+*** timeout
+*** url
+*** credentials
+**** enabled
+**** name
+**** number-of-tries
+*** protocol
+**** port
+**** prefix
+* service
+** timeout
+** url
+** credentials
+*** enabled
+*** name
+*** number-of-tries
+** protocol
+*** port
+*** prefix
