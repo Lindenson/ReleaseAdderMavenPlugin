@@ -8,17 +8,17 @@ Properties versioning maven plugin version {{ version }}
 
 {{ attributes }}
 
-=== [navy]#Properties added#
+=== [navy]#Properties added:#
 
 {{ added }}
 
-=== [navy]#Properties removed#
+=== [navy]#Properties removed:#
 
 {{ removed }}
 
 ifdef::defaults[]
 
-=== [navy]#Default values changed#
+=== [navy]#Default values changed:#
 
 {{ defaults }}
 
