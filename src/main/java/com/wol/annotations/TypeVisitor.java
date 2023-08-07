@@ -33,9 +33,9 @@ public class TypeVisitor extends AbstractTypeVisitor8 {
     public Object visitDeclared(DeclaredType t, Object o) {
         List<String> elements = t.asElement()
                 .getEnclosedElements().stream().filter(tx -> tx.getKind().equals(ElementKind.FIELD))
-                .filter(tx -> tx.getAnnotationMirrors().stream().map(iz ->
-                                iz.getAnnotationType().asElement()
-                                .getSimpleName().toString()).filter(ix -> ix.contains(MANDATORY)
+                .filter(field -> field.getAnnotationMirrors().stream().map(annotation ->
+                                annotation.getAnnotationType().asElement()
+                                .getSimpleName().toString()).filter(name -> name.contains(MANDATORY)
                         ).findFirst().isPresent()
                 )
                 .map(itx -> PREFIXES.get(itx.getEnclosingElement().asType()) + expandTheName(itx.toString()))
