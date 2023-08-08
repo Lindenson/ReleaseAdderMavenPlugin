@@ -17,10 +17,10 @@ If the names of the branches are following some pattern to trace back the releas
 
 ---
 
-#### Properties versioning maven plugin version 2.0
+#### Properties versioning maven plugin version 2.2
 ### Spring Configuration Properties
 
-#### added to 2.1 and removed from 2.0
+#### added to 1.1 and removed from 1.0
 
 
 <h4>Properties added</h4>
