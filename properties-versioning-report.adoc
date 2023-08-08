@@ -10,16 +10,14 @@ Properties versioning maven plugin version 2.0
 
 === [navy]#Properties added:#
 
-* prop1
-** pr1
-** pr2
+ * prop1.pr1
+ * prop1.pr2
 
 
 === [navy]#Properties removed:#
 
-* prop2
-** pr1
-** pr2
+ * prop2.pr2
+ * prop2.pr1
 
 
 ifdef::defaults[]
@@ -34,4 +32,4 @@ endif::[]
 include::properties-mandatory.adoc[opts=optional]
 
 
-====  [teal]#Report generated at Aug 7, 2023#
+====  [teal]#Report generated at Aug 8, 2023#

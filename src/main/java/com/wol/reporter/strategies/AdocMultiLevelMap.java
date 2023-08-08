@@ -1,20 +1,24 @@
-package com.wol.reporter;
+package com.wol.reporter.strategies;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class AdocMultiLevelMap {
+public class AdocMultiLevelMap implements ReportStyles<Set<String>> {
 
     private String root = UUID.randomUUID().toString();
 
-    public Object makeMultiLevelMap(String source, Object result) {
-        return makeMapGroups(root + '.' + source, (Map<String, List<Object>>) result);
+    @Override
+    public StringBuilder prettyPrint(Set<String> source) {
+        AtomicReference<Object> accumulator = new AtomicReference<>(null);
+        source.stream().forEach( it -> accumulator.set(makeMultiLevelMap(it, accumulator.get())));
+        StringBuilder stringBuilder = new StringBuilder();
+        printUngrouped((Map<String, List<Object>>) accumulator.get(), stringBuilder, 0);
+        return stringBuilder;
     }
 
-    public StringBuilder prettyPrint(Map<String, List<Object>> result) {
-        StringBuilder stringBuilder = new StringBuilder();
-        printUngrouped(result, stringBuilder, 0);
-        return stringBuilder;
+    private Object makeMultiLevelMap(String source, Object result) {
+        return makeMapGroups(root + '.' + source, (Map<String, List<Object>>) result);
     }
 
     private Object makeMapGroups(String source, Map<String, List<Object>> result) {

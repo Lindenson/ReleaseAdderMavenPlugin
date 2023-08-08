@@ -1,6 +1,7 @@
 package com.wol;
 
 import com.wol.json.JsonComparator;
+import com.wol.reporter.Reporter;
 import com.wol.reporter.ReporterAdoc;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -14,6 +15,7 @@ import java.nio.file.Paths;
 
 import com.wol.file.MetadataJob;
 
+import static com.wol.reporter.strategies.ReportStyles.styleFrom;
 
 
 @Mojo( name = "add_version",  defaultPhase = LifecyclePhase.INSTALL)
@@ -39,6 +41,9 @@ public class Plugin extends AbstractMojo
     @Parameter( property = "folder")
     private String folder;
 
+    @Parameter( property = "style")
+    private String style;
+
 
     public void execute() throws MojoExecutionException
     {
@@ -56,8 +61,8 @@ public class Plugin extends AbstractMojo
                 .build();
 
         JsonComparator jsonComparator = new JsonComparator();
-        ReporterAdoc   reporterAdoc = new ReporterAdoc(TEMPLATE_ADOC, Paths.get(baseDir, REPORT_ADOC), getLog());
+        Reporter reporter = new ReporterAdoc(TEMPLATE_ADOC, Paths.get(baseDir, REPORT_ADOC), styleFrom(style), getLog());
 
-        metadataJob.doJob(jsonComparator, reporterAdoc);
+        metadataJob.doJob(jsonComparator, reporter);
     }
 }

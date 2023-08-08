@@ -2,7 +2,9 @@ package com.wol.annotations;
 
 
 import com.google.auto.service.AutoService;
-import com.wol.reporter.AdocSimpleList;
+import com.wol.reporter.strategies.AdocMultiLevelMap;
+import com.wol.reporter.strategies.AdocSimpleSet;
+import com.wol.reporter.strategies.ReportStyles;
 import org.jetbrains.annotations.NotNull;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -14,9 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-
-
 import static com.wol.annotations.TypeVisitor.PREFIXES;
+import static com.wol.reporter.strategies.ReportStyles.styleFrom;
 
 
 @AutoService(Processor.class)
@@ -25,16 +26,19 @@ import static com.wol.annotations.TypeVisitor.PREFIXES;
 public class MandatoryPropertyAnnotationProcessor extends AbstractProcessor {
 
 
-    public static final String CONFIGURATION_PROPERTIES = "ConfigurationProperties";
-    public static final String NESTED_CONFIGURATION = "NestedConfiguration";
-    public static final String PROPERTIES_MANDATORY_ADOC = "properties-mandatory.adoc";
+    private static final String CONFIGURATION_PROPERTIES = "ConfigurationProperties";
+    private static final String NESTED_CONFIGURATION = "NestedConfiguration";
+    private static final String PROPERTIES_MANDATORY_ADOC = "properties-mandatory.adoc";
+    public static final String STYLE_OPTION = "style";
+    private ReportStyles.Style style;
 
 
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
-            List<String> mandatory = new ArrayList();
+            style = styleFrom(processingEnv.getOptions().get(STYLE_OPTION));
+            Set<String> mandatory = new TreeSet<>();
             for (TypeElement te : annotations)
                 for (Element e : roundEnv.getElementsAnnotatedWith(te)) {
                     e.getEnclosingElement().getAnnotationMirrors().stream()
@@ -49,7 +53,7 @@ public class MandatoryPropertyAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void findMandatoryProperties(List<String> mandatory, Element element, AnnotationMirror annotation) {
+    private void findMandatoryProperties(Set<String> mandatory, Element element, AnnotationMirror annotation) {
         TypeMirror propertyType = element.getEnclosingElement().asType();
         addToPrefixMap(propertyType, annotation);
         List<String> namesOfNested = findNestedProperties(element);
@@ -88,7 +92,7 @@ public class MandatoryPropertyAnnotationProcessor extends AbstractProcessor {
                     .ifPresent(annotation -> {
                         Element father = child.getEnclosingElement();
                         if (father != null) addToPrefixMap(child.asType(), annotation, father.asType(), child.toString());
-                        child.asType().accept(new TypeVisitor(), (Object) nested);
+                        child.asType().accept(new TypeVisitor(), nested);
                     });
         }
         catch (Exception ex) {
@@ -109,9 +113,11 @@ public class MandatoryPropertyAnnotationProcessor extends AbstractProcessor {
     }
 
 
-    private void makeAdoc(List<String> mandatory) throws IOException {
-        Collections.sort(mandatory);
-        String result = AdocSimpleList.prettyPrint(mandatory);
+    private void makeAdoc(Set<String> mandatory) throws IOException {
+        String result = switch (style) {
+            case TREE -> new AdocMultiLevelMap().prettyPrint(mandatory).toString();
+            default ->  new AdocSimpleSet().prettyPrint(mandatory).toString();
+        };
         Path path = Paths.get(PROPERTIES_MANDATORY_ADOC);
         Files.writeString(path, "=== [navy]#Mandatory Properties:#\n");
         Files.writeString(path, result, StandardOpenOption.APPEND);

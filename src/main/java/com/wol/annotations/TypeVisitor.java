@@ -8,74 +8,71 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import static com.wol.annotations.MandatoryPropertyAnnotationProcessor.expandTheName;
 
-public class TypeVisitor extends AbstractTypeVisitor8 {
+public class TypeVisitor extends AbstractTypeVisitor8<Object, List<String>> {
 
     public static final String MANDATORY = "Mandatory";
     public static final Map<TypeMirror, String> PREFIXES = new ConcurrentHashMap<>();
 
-
     @Override
-    public Object visitPrimitive(PrimitiveType t, Object o) {
+    public Object visitIntersection(IntersectionType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitNull(NullType t, Object o) {
+    public Object visitPrimitive(PrimitiveType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitArray(ArrayType t, Object o) {
+    public Object visitNull(NullType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitDeclared(DeclaredType t, Object o) {
+    public Object visitArray(ArrayType t, List<String> strings) {
+        return null;
+    }
+
+    @Override
+    public Object visitDeclared(DeclaredType t, List<String> strings) {
         List<String> elements = t.asElement()
                 .getEnclosedElements().stream().filter(tx -> tx.getKind().equals(ElementKind.FIELD))
                 .filter(field -> field.getAnnotationMirrors().stream().map(annotation ->
-                                annotation.getAnnotationType().asElement()
-                                .getSimpleName().toString()).filter(name -> name.contains(MANDATORY)
-                        ).findFirst().isPresent()
-                )
+                        annotation.getAnnotationType().asElement()
+                                .getSimpleName().toString()).anyMatch(name -> name.contains(MANDATORY)))
                 .map(itx -> PREFIXES.get(itx.getEnclosingElement().asType()) + expandTheName(itx.toString()))
                 .toList();
-        ((List<String>) o).addAll(elements);
+        strings.addAll(elements);
         return null;
     }
 
     @Override
-    public Object visitError(ErrorType t, Object o) {
+    public Object visitError(ErrorType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitTypeVariable(TypeVariable t, Object o) {
+    public Object visitTypeVariable(TypeVariable t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitWildcard(WildcardType t, Object o) {
+    public Object visitWildcard(WildcardType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitExecutable(ExecutableType t, Object o) {
+    public Object visitExecutable(ExecutableType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitNoType(NoType t, Object o) {
+    public Object visitNoType(NoType t, List<String> strings) {
         return null;
     }
 
     @Override
-    public Object visitUnion(UnionType t, Object o) {
-        return null;
-    }
-
-    @Override
-    public Object visitIntersection(IntersectionType t, Object o) {
+    public Object visitUnion(UnionType t, List<String> strings) {
         return null;
     }
 }

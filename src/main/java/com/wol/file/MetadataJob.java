@@ -1,11 +1,10 @@
 package com.wol.file;
 
 
-import com.wol.annotations.Mandatory;
 import com.wol.file.dto.GitInfo;
 import com.wol.file.dto.JarInfo;
 import com.wol.json.JsonComparator;
-import com.wol.reporter.ReporterAdoc;
+import com.wol.reporter.Reporter;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import java.io.File;
@@ -23,20 +22,22 @@ public class MetadataJob {
     public static final String ERROR_MESSAGE = "%s release %s doesnt contain metadata. no report created";
     JarExtractor jarExtractor;
     GitExtractor gitExtractor;
+    String reportStyle;
     Log logger;
     public static final String UNKNOWN = "unknown";
 
     private MetadataJob(
             String fileName, String baseDirName, String techDirName,
-            String releaseRegex, File target, MavenProject project, Log logger
+            String releaseRegex, File target, MavenProject project, String reportStyle, Log logger
     ) {
         jarExtractor = new JarExtractor(fileName, baseDirName, techDirName, target, project, logger);
         gitExtractor = new GitExtractor(fileName, baseDirName, techDirName, releaseRegex, logger);
+        this.reportStyle = reportStyle;
         this.logger = logger;
 
     }
 
-    public void doJob(JsonComparator comparator, ReporterAdoc reporter) {
+    public void doJob(JsonComparator comparator, Reporter reporter) {
         JarInfo jarInfo = jarExtractor.extractFiles();
         GitInfo gitInfo = gitExtractor.extractFiles();
 
@@ -119,6 +120,11 @@ public class MetadataJob {
             return this;
         }
 
+        public FEBuilder reportStyle(String r) {
+            this.style = r;
+            return this;
+        }
+
         private String relR;
         private String baseD;
         private String techD;
@@ -126,6 +132,8 @@ public class MetadataJob {
         private String fileN;
         private MavenProject project;
         private File target;
+        private String style;
+
 
         static final String RELEASE_REGEX = "release-(?<number>(\\d+\\.*)+)[^\\d\\.]*.*";
         static final String TECH_DIR_NAME = "properties_history";
@@ -139,7 +147,7 @@ public class MetadataJob {
             if (techD == null) techD = TECH_DIR_NAME;
             if (relR  == null) relR = RELEASE_REGEX;
 
-            return new MetadataJob(fileN, baseD, techD, relR, target, project, log);
+            return new MetadataJob(fileN, baseD, techD, relR, target, project, style, log);
         }
 
     }
