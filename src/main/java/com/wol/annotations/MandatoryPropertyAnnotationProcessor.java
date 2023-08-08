@@ -103,13 +103,12 @@ public class MandatoryPropertyAnnotationProcessor extends AbstractProcessor {
 
     @NotNull
     private String getPrefix(AnnotationMirror z) {
-        String prefix = z.getElementValues().values().stream()
+        return z.getElementValues().values().stream()
                         .map(Object::toString)
                         .map(it -> it.replace("\"", ""))
                         .map(it -> it + '.')
                         .findFirst()
                         .orElse("");
-        return prefix;
     }
 
 

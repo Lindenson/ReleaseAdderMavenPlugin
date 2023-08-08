@@ -10,8 +10,8 @@ import static com.wol.annotations.MandatoryPropertyAnnotationProcessor.expandThe
 
 public class TypeVisitor extends AbstractTypeVisitor8<Object, List<String>> {
 
-    public static final String MANDATORY = "Mandatory";
-    public static final Map<TypeMirror, String> PREFIXES = new ConcurrentHashMap<>();
+    private static final String MANDATORY = "Mandatory";
+    protected static final Map<TypeMirror, String> PREFIXES = new ConcurrentHashMap<>();
 
     @Override
     public Object visitIntersection(IntersectionType t, List<String> strings) {
