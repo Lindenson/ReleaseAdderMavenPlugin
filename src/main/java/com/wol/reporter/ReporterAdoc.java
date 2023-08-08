@@ -27,8 +27,8 @@ public class ReporterAdoc implements Reporter {
     private final Path destination;
     private final Log logger;
     private final String timeNow;
-    private ReportStyles reportAddedRemovedStrategy;
-    private ReportStyles reportDefaultStrategy;
+    private ReportStyles<Set<String>> reportAddedRemovedStrategy;
+    private ReportStyles<Map<String, String>> reportDefaultStrategy;
 
 
 

@@ -12,6 +12,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <option name="style" value="list" />
         <processorPath useClasspath="false">
           <entry name="$PROJECT_DIR$/target/classes" />
           <entry name="$MAVEN_REPOSITORY$/org/apache/maven/plugin-tools/maven-plugin-annotations/3.8.1/maven-plugin-annotations-3.8.1.jar" />
@@ -69,5 +70,10 @@
     <bytecodeTargetLevel>
       <module name="maven-release-adder-plugin" target="1.5" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ReleaseAdderMavenPlugin" options="-Astyle=list" />
+    </option>
   </component>
 </project>

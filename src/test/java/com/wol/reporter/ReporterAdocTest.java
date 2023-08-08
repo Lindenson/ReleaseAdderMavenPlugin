@@ -1,5 +1,6 @@
 package com.wol.reporter;
 
+import com.wol.reporter.strategies.ReportStyles;
 import org.apache.maven.monitor.logging.DefaultLog;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
@@ -36,7 +37,8 @@ class ReporterAdocTest {
     void failsIfTemplateIsMissing(){
         Log logger = new DefaultLog(new ConsoleLogger());
         Path path = Paths.get("");
-        assertThrows(IllegalStateException.class, () -> new ReporterAdoc("123", path, styleFrom("LIST"), logger));
+        ReportStyles.Style style = styleFrom("LIST");
+        assertThrows(IllegalStateException.class, () -> new ReporterAdoc("123", path, style, logger));
     }
 
     @Test

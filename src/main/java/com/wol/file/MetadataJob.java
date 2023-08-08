@@ -22,17 +22,15 @@ public class MetadataJob {
     public static final String ERROR_MESSAGE = "%s release %s doesnt contain metadata. no report created";
     JarExtractor jarExtractor;
     GitExtractor gitExtractor;
-    String reportStyle;
     Log logger;
     public static final String UNKNOWN = "unknown";
 
     private MetadataJob(
             String fileName, String baseDirName, String techDirName,
-            String releaseRegex, File target, MavenProject project, String reportStyle, Log logger
+            String releaseRegex, File target, MavenProject project, Log logger
     ) {
         jarExtractor = new JarExtractor(fileName, baseDirName, techDirName, target, project, logger);
         gitExtractor = new GitExtractor(fileName, baseDirName, techDirName, releaseRegex, logger);
-        this.reportStyle = reportStyle;
         this.logger = logger;
 
     }
@@ -120,10 +118,6 @@ public class MetadataJob {
             return this;
         }
 
-        public FEBuilder reportStyle(String r) {
-            this.style = r;
-            return this;
-        }
 
         private String relR;
         private String baseD;
@@ -147,7 +141,7 @@ public class MetadataJob {
             if (techD == null) techD = TECH_DIR_NAME;
             if (relR  == null) relR = RELEASE_REGEX;
 
-            return new MetadataJob(fileN, baseD, techD, relR, target, project, style, log);
+            return new MetadataJob(fileN, baseD, techD, relR, target, project, log);
         }
 
     }
