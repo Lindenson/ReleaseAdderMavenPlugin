@@ -153,10 +153,11 @@ If the names of the branches are following some pattern to trace back the releas
 <plugin>
     <groupId>com.wol</groupId>
     <artifactId>properties-versioning-maven-plugin</artifactId>
-    <version>2.0</version>
+    <version>2.2</version>
     <configuration>
         <folder>property_history</folder>
         <regex><![CDATA[release-(?<number>(\d+\.*)+)]]></regex>
+        <style>tree</style>
     </configuration>
     <executions>
         <execution>
@@ -168,3 +169,58 @@ If the names of the branches are following some pattern to trace back the releas
     </executions>
 </plugin>
 ```
+
+
+#### Choose your style: “sytle” optional variable is responsible for switching between “tree” or “list” (default) report style.
+
+
+## Mandatory properties
+
+If you would like to include a mandatory properties list to a report (in order to facilitate OPS team job) you should annotate such properties with a @Mandatory annotation included in this project. Even @NestedConfigurationProperty will be found and included into a report hierarchically.
+
+### Example:
+```
+@ConfigurationProperties("service.external")
+public class DummyClass {
+    @Mandatory
+    private String url;
+    @NestedConfigurationProperty
+    @Mandatory
+    private NestedDummyClass externalCredentials;
+    @Mandatory
+    private int timeout;
+...
+}
+...
+public class NestedDummyClass {
+    @Mandatory
+    private String prefixAdditional;
+    @Mandatory
+    private int port;
+    private int timeout;
+}
+...
+```
+
+To make it work you only have to add the following annotation processor path:
+```
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <annotationProcessorPaths>
+    <annotationProcessorPath>
+      <groupId>com.wol</groupId>
+      <artifactId>properties-versioning-maven-plugin</artifactId>
+      <version>2.2</version>
+    </annotationProcessorPath>
+    </annotationProcessorPaths>
+    <compilerArgs>
+      <arg>-Astyle=list</arg>
+    </compilerArgs>
+  </configuration>
+</plugin>
+...
+```
+
+#### Choose your style: “sytle” optional variable is responsible for switching between “tree” or “list” (default) report style.
