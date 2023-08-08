@@ -89,6 +89,9 @@
             <version>2.0</version>
           </annotationProcessorPath>
           </annotationProcessorPaths>
+          <compilerArgs>
+            <arg>-Astyle=list</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>

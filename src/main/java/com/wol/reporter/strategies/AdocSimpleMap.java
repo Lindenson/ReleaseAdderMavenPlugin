@@ -1,11 +1,8 @@
-package com.wol.reporter;
-
+package com.wol.reporter.strategies;
 import java.util.Map;
 
-public class AdocSimpleMap {
-
-    private AdocSimpleMap() {}
-    public static String prettyPrint(Map<String, String> result) {
+public class AdocSimpleMap implements ReportStyles<Map<String, String>> {
+    public StringBuilder prettyPrint(Map<String, String> result) {
         StringBuilder stringBuilder = new StringBuilder();
         result.keySet().stream().forEach(s -> {
             stringBuilder.append(" * ");
@@ -14,7 +11,7 @@ public class AdocSimpleMap {
             stringBuilder.append(result.get(s));
             stringBuilder.append("\n");
         });
-        return stringBuilder.toString();
+        return stringBuilder;
     }
 
 }

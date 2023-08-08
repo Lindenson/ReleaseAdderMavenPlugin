@@ -2,6 +2,10 @@ package com.wol.reporter;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.wol.reporter.strategies.AdocMultiLevelMap;
+import com.wol.reporter.strategies.AdocSimpleSet;
+import com.wol.reporter.strategies.AdocSimpleMap;
+import com.wol.reporter.strategies.ReportStyles;
 import org.apache.maven.plugin.logging.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,29 +19,33 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class ReporterAdoc {
+public class ReporterAdoc implements Reporter {
     public static final String PLUGIN_VERSION = "2.0";
     private final List<String> templateStrings;
     private final Path destination;
     private final Log logger;
-    private final AdocMultiLevelMap grouper;
-    private final AtomicReference<Object> resultAdded = new AtomicReference<>(null);
-    private final AtomicReference<Object> resultRemoved = new AtomicReference<>(null);
     private final String timeNow;
+    private ReportStyles reportAddedRemovedStrategy;
+    private ReportStyles reportDefaultStrategy;
 
 
-    public ReporterAdoc(String templateFile, Path destination, Log logger) {
+
+    public ReporterAdoc(String templateFile, Path destination, ReportStyles.Style style, Log logger) {
         this.destination = destination;
         this.logger = logger;
-        this.grouper = new AdocMultiLevelMap();
         this.timeNow = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM));
 
         try (InputStream in = getClass().getResourceAsStream(templateFile);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(in)))
-        { templateStrings = reader.lines().toList();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            templateStrings = reader.lines().toList();
+            this.reportAddedRemovedStrategy = switch (style) {
+                case TREE ->  new AdocMultiLevelMap();
+                default -> new AdocSimpleSet();
+
+            };
+            this.reportDefaultStrategy = new AdocSimpleMap();
         } catch (Exception e) {
             logger.error("error creating report");
             logger.error(e.getMessage());
@@ -45,20 +53,16 @@ public class ReporterAdoc {
         }
     }
 
-    public void generate(Set<String> added, Set<String> removed, Map<String, String> defaultsChanged, String currentBranch, String beforeBranch) {
+    @Override
+    public void generate(Set<String> added,
+                         Set<String> removed,
+                         Map<String, String> defaultsChanged,
+                         String currentBranch,
+                         String beforeBranch) {
         if (added == null || removed == null || currentBranch == null || beforeBranch == null || defaultsChanged == null) return;
-
         logger.info(String.format("Creating report comparing releases between %s, before %s", currentBranch, beforeBranch));
-
         try {
-            removed.stream().forEach( it -> resultRemoved.set(grouper.makeMultiLevelMap(it, resultRemoved.get())));
-            added.stream().forEach( it -> resultAdded.set(grouper.makeMultiLevelMap(it,  resultAdded.get())));
-            applyTemplate(currentBranch,
-                          beforeBranch,
-                          (Map<String, List<Object>>) resultAdded.get(),
-                          (Map<String, List<Object>>) resultRemoved.get(),
-                          defaultsChanged
-            );
+            applyTemplate(currentBranch, beforeBranch, added, removed, defaultsChanged);
         } catch (Exception e) {
             logger.error("error creating report");
             logger.error(e.getMessage());
@@ -66,26 +70,26 @@ public class ReporterAdoc {
     }
 
     private void applyTemplate(String currentBranch, String beforeBranch,
-                                Map<String, List<Object>> propsAdded,
-                                Map<String, List<Object>> propsRemoved,
+                                Set<String> propsAdded,
+                                Set<String> propsRemoved,
                                 Map<String, String> defValuesChanged
                               ) throws IOException
     {
-        StringBuilder added = grouper.prettyPrint(propsAdded);
-        StringBuilder removed = grouper.prettyPrint(propsRemoved);
+        String added = reportAddedRemovedStrategy.prettyPrint(propsAdded).toString();
+        String removed = reportAddedRemovedStrategy.prettyPrint(propsRemoved).toString();
 
         Handlebars handlebars = new Handlebars();
         Template template = handlebars.compileInline(this.templateStrings.stream().collect(Collectors.joining("\n")));
 
-        String defaults = AdocSimpleMap.prettyPrint(defValuesChanged);
+        String defaults = reportDefaultStrategy.prettyPrint(defValuesChanged).toString();
         String attributes = defValuesChanged.isEmpty()? "" : ":defaults:";
 
         Files.writeString(destination, template.apply(new TemplateDto(
                 PLUGIN_VERSION,
                 currentBranch,
                 beforeBranch,
-                added.toString(),
-                removed.toString(),
+                added,
+                removed,
                 defaults,
                 timeNow,
                 attributes)
